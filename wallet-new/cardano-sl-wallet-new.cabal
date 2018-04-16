@@ -171,6 +171,7 @@ executable cardano-node
                      , QuickCheck
                      , aeson
                      , aeson-pretty
+                     , base58-bytestring
                      , bytestring
                      , conduit
                      , cardano-sl
@@ -186,6 +187,7 @@ executable cardano-node
                      , cardano-sl-txp
                      , cardano-sl-wallet
                      , cardano-sl-wallet-new
+                     , cardano-crypto
                      , containers
                      , exceptions
                      , formatting
@@ -436,6 +438,7 @@ test-suite wallet-new-specs
                     , QuickCheck
                     , aeson
                     , aeson-pretty
+                    , base58-bytestring
                     , bytestring
                     , conduit
                     , cardano-sl
@@ -450,6 +453,7 @@ test-suite wallet-new-specs
                     , cardano-sl-txp
                     , cardano-sl-wallet
                     , cardano-sl-wallet-new
+                    , cardano-crypto
                     , containers
                     , data-default
                     , exceptions

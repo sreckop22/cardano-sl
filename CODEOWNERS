@@ -1,8 +1,9 @@
-# Unless a later match takes precedence, @gromakovsky will be requested
-# for review when someone opens a pull request, because @gromakovsky
-# is the Head Vulture of this project.
+# Unless a later match takes precedence, @erikd will be requested
+# for review when someone opens a pull request. Anybody who would
+# like to be added as a reviewer should feel free to add themselves
+# below.
 
-*                               @gromakovsky
+*                               @erikd
 
 # Order is important; the last matching pattern takes the most precedence.
 
@@ -28,15 +29,14 @@ scripts/set_nixpath.sh          @iohk-devops
 # Documentation
 *.md                            @denisshevchenko
 
-Delegation/                     @volhovm
-
-txp/                            @gromakovsky @pva701
-update/                         @gromakovsky @pva701
-lrc/                            @pva701
-ssc/                            @gromakovsky
-
-lib/test/                       @rockbmb
-lib/test/Test/Pos/Block/Logic/  @gromakovsky
+# Core components not included in the catch all above.
+delegation/                     @erikd
+auxx                            @erikd
+txp/                            @erikd
+update/                         @erikd
+lrc/                            @erikd
+ssc/                            @erikd
+lib/test/                       @erikd
 
 # Networking
 infra/Pos/Network               @dcoutts @avieth
@@ -50,6 +50,3 @@ scripts/bench                   @kantp @avieth
 wallet/                         @martoon @akegalj @adinapoli-iohk
 wallet/web-api-swagger          @martoon @adinapoli-iohk
 wallet-new/                     @adinapoli-iohk
-
-## Auxx
-auxx                            @int-index

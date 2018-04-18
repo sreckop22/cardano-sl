@@ -5,3 +5,9 @@
 -}
 
 module Cardano.Wallet.Orphans where
+
+import           Universum hiding (State)
+import           Pos.Core (TxAux(..))
+
+instance Ord TxAux where
+    compare = comparing taTx

@@ -8,9 +8,7 @@ module Cardano.Wallet.WalletLayer.Legacy
 import           Universum
 
 import           Cardano.Wallet.WalletLayer.Types (ActiveWalletLayer (..), PassiveWalletLayer (..))
-
 import           Cardano.Wallet.Kernel.Diffusion (WalletDiffusion (..))
-
 import           Cardano.Wallet.API.V1.Migration (migrate)
 import           Pos.Wallet.Web.State.State (WalletDbReader, askWalletSnapshot, getWalletAddresses)
 
@@ -27,6 +25,7 @@ bracketPassiveWallet =
     passiveWalletLayer :: PassiveWalletLayer n
     passiveWalletLayer = PassiveWalletLayer
         { pwlGetWalletIds  = askWalletSnapshot >>= \ws -> migrate $ getWalletAddresses ws
+        , pwlApplyBlocks = error "Not implemented!"
         }
 
 -- | Initialize the active wallet.
@@ -36,8 +35,7 @@ bracketActiveWallet
     => PassiveWalletLayer n
     -> WalletDiffusion
     -> (ActiveWalletLayer n -> m a) -> m a
-bracketActiveWallet walletPassiveLayer walletDiffusion =
+bracketActiveWallet walletPassiveLayer _walletDiffusion =
     bracket
       (return ActiveWalletLayer{..})
       (\_ -> return ())
-

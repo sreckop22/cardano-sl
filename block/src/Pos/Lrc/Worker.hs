@@ -28,7 +28,7 @@ import           Pos.Block.Logic.Internal (BypassSecurityCheck (..), MonadBlockA
                                            applyBlocksUnsafe, rollbackBlocksUnsafe)
 import           Pos.Block.Slog.Logic (ShouldCallBListener (..))
 import           Pos.Core (Coin, EpochIndex, EpochOrSlot (..), SharedSeed, StakeholderId,
-                           blkSecurityParam, crucialSlot, epochIndexL, getEpochOrSlot)
+                           blkSecurityParam, crucialSlot, epochIndexL, getEpochOrSlot, HasProtocolConstants)
 import qualified Pos.DB.Block.Load as DB
 import qualified Pos.DB.GState.Stakes as GS (getRealStake, getRealTotalStake)
 import qualified Pos.GState.SanityCheck as DB (sanityCheckDB)
@@ -210,7 +210,7 @@ issuersComputationDo epochId = do
         Just stake -> pure $ HM.insert id stake hm
 
 leadersComputationDo ::
-       forall ctx m. LrcMode ctx m
+       forall ctx m. (LrcMode ctx m, HasProtocolConstants)
     => EpochIndex
     -> SharedSeed
     -> m ()

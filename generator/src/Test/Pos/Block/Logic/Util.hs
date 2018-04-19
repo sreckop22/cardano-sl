@@ -25,7 +25,7 @@ import           Test.QuickCheck.Monadic (PropertyM, pick)
 import           Pos.AllSecrets (AllSecrets, HasAllSecrets (..), allSecrets)
 import           Pos.Block.Types (Blund)
 import           Pos.Core (BlockCount, GenesisData (..), HasConfiguration, HasGenesisData,
-                           SlotId (..), epochIndexL, genesisData)
+                           SlotId (..), epochIndexL, genesisData, HasProtocolMagic)
 import           Pos.Core.Block (Block)
 import           Pos.Generator.Block (BlockGenMode, BlockGenParams (..), MonadBlockGenInit,
                                       genBlocks, tgpTxCountRange)
@@ -48,6 +48,7 @@ genBlockGenParams
     :: ( HasGenesisData
        , HasAllSecrets ctx
        , MonadReader ctx m
+       , HasProtocolMagic
        )
     => Maybe BlockCount
     -> EnableTxPayload

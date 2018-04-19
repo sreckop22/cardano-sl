@@ -45,7 +45,7 @@ import           Pos.Util.Chrono (NE, OldestFirst (..))
 -- Though, usually in this method oldest header is LCA, so it can be
 -- optimized by traversing from older to newer.
 lcaWithMainChain
-    :: (HasConfiguration, MonadBlockDBRead m)
+    :: ( MonadBlockDBRead m )
     => OldestFirst NE BlockHeader -> m (Maybe HeaderHash)
 lcaWithMainChain headers =
     lcaProceed Nothing $

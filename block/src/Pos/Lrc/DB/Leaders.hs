@@ -33,7 +33,7 @@ import           Pos.Lrc.Genesis (genesisLeaders)
 getLeadersForEpoch :: MonadDBRead m => EpochIndex -> m (Maybe SlotLeaders)
 getLeadersForEpoch = getBi . leadersForEpochKey
 
-getLeader :: MonadDBRead m => SlotId -> m (Maybe StakeholderId)
+getLeader :: (MonadDBRead m, HasProtocolConstants) => SlotId -> m (Maybe StakeholderId)
 getLeader = getBi . leaderKey
 
 ----------------------------------------------------------------------------
@@ -44,7 +44,7 @@ getLeader = getBi . leaderKey
 -- The DB contains two mappings:
 -- * EpochIndex -> SlotLeaders
 -- * SlotId -> StakeholderId (added in CSE-240)
-putLeadersForEpoch :: MonadDB m => EpochIndex -> SlotLeaders -> m ()
+putLeadersForEpoch :: (MonadDB m, HasProtocolConstants) => EpochIndex -> SlotLeaders -> m ()
 putLeadersForEpoch epoch leaders = do
     let opsAllAtOnce  = toRocksOps $ putLeadersForEpochAllAtOnceOps epoch leaders
         opsSeparately = toRocksOps $ putLeadersForEpochSeparatelyOps epoch leaders

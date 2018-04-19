@@ -145,11 +145,10 @@ while [[ $i -lt $panesCnt ]]; do
   fi
   if [[ $i -lt $n ]]; then
     node_args="$(node_cmd $i "$wallet_args" "$system_start" "$config_dir" "$conf_file" "$run_dir" "$run_dir/logs")"
-    node_=/nix/store/cyjq242avbpgap9cqvi07aazzsfamnmp-cardano-sl-node-1.1.1/bin/cardano-node-simple
+    node_=$(find_binary $exec_name)
     if [[ $WALLET_TEST != "" ]] && [[ $i == $((n-1)) ]]; then
         updater_file="$config_dir/updater$i.sh"
-        launcher_=/nix/store/p7rbbdycckq1p9h7lfc9x3g4b2zrrd0m-cardano-sl-tools-1.1.1/bin/cardano-launcher
-        node_=/nix/store/jvkznd5vqzmy8v4g3qn6raaa63vj9p3p-cardano-sl-wallet-new-1.1.1/bin/cardano-node
+        launcher_=$(find_binary cardano-launcher)
 
         ensure_run $run_dir
 

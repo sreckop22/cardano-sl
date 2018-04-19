@@ -16,19 +16,8 @@ with localLib;
 
 let
   executables =  {
-    wallet = iohkPkgs.connectScripts.demoWallet.override {
-      walletListen = "127.0.0.1:8090";
-      ekgListen = "127.0.0.1:8006";
-      stateDir = stateDir;
-      topologyFile = pkgs.writeText "demo-wallet-topology" ''
-        wallet:
-          relays: [[{ addr: 127.0.0.1 }]]
-          valency: 1
-          fallbacks: 7
-
-      '';
-    };
     corenode = "${iohkPkgs.cardano-sl-node-static}/bin/cardano-node-simple";
+    wallet = "${iohkPkgs.cardano-sl-wallet-new}/bin/cardano-node";
     launcher = "${iohkPkgs.cardano-sl-tools}/bin/cardano-launcher";
     explorer = "${iohkPkgs.cardano-sl-explorer-static}/bin/cardano-explorer";
   };
@@ -74,7 +63,7 @@ in pkgs.writeScript "demo-cluster" ''
 
   echo "Generating Topology"
   mkdir -p ${stateDir}
-  gen_kademlia_topology ${builtins.toString numCoreNodes} ${stateDir}
+  gen_kademlia_topology ${builtins.toString (numCoreNodes + 1)} ${stateDir}
 
   trap "stop_cardano" INT TERM
   echo "Launching a demo cluster..."
@@ -87,8 +76,17 @@ in pkgs.writeScript "demo-cluster" ''
 
   done
   ${ifWallet ''
+    if [ ! -d ${stateDir}/tls-files ]; then
+      mkdir -p ${stateDir}/tls-files
+      ${pkgs.openssl}/bin/openssl req -x509 -newkey rsa:2048 -keyout ${stateDir}/tls-files/server.key -out ${stateDir}/tls-files/server.crt -days 30 -nodes -subj "/CN=localhost"
+    fi
     echo Launching wallet node:
-    ${executables.wallet} "" --runtime-args "--system-start $system_start" &
+    i=${builtins.toString numCoreNodes}
+    wallet_args=" --tlscert ${stateDir}/tls-files/server.crt --tlskey ${stateDir}/tls-files/server.key --tlsca ${stateDir}/tls-files/server.crt"
+    wallet_args="$wallet_args --new-wallet --wallet-address 127.0.0.1:8090 --wallet-debug"
+    node_args="$(node_cmd $i "$wallet_args" "$system_start" "${stateDir}" "" "${stateDir}/logs" "${stateDir}") --configuration-file ${configFiles}/configuration.yaml"
+    echo Running wallet with args: $node_args
+    ${executables.wallet} $node_args &
     wallet_pid=$!
   ''}
   sleep infinity

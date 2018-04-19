@@ -121,6 +121,7 @@ let
       mainnetWallet = connect {};
       mainnetExplorer = connect { executable = "explorer"; };
       stagingWallet = connect { environment = "mainnet-staging"; };
+      demoWallet = connect { environment = "demo"; };
       stagingExplorer = connect { executable = "explorer"; environment = "mainnet-staging"; };
     };
     dockerImages = {

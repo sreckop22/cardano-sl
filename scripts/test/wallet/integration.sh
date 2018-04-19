@@ -30,11 +30,11 @@ $scripts/clean/db.sh
 # TODO (akegalj): use OS temp location instead
 echo "Creating genesis keys..."
 rm -rf $tmpSecrets
-stack exec -- cardano-keygen --system-start 0 generate-keys-by-spec --genesis-out-dir $tmpSecrets
+/nix/store/p7rbbdycckq1p9h7lfc9x3g4b2zrrd0m-cardano-sl-tools-1.1.1/bin/cardano-launcher --system-start 0 generate-keys-by-spec --genesis-out-dir $tmpSecrets
 
 # run cluster
 echo "Starting local cardano cluster..."
-tmux new-session -s $sessionName -d "WALLET_DEBUG=1 scripts/launch/demo-with-wallet-api.sh"
+WALLET_DEBUG=1 scripts/launch/demo-with-wallet-api.sh &
 
 # wait until cluster is fully up and running
 echo "Waiting $SECONDS seconds until local cluster is ready..."
@@ -50,6 +50,7 @@ do
 done
 
 FAILED=0
+sleep infinity
 
 # run integration tests
 echo "Launching cardano integration tests..."

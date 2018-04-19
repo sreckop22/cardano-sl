@@ -27,10 +27,10 @@ base=$(dirname "$0")
 source "$base"/../common-functions.sh
 
 # If stack-work doesn't exist use function
-if [[ ! -d "$base/../../.stack-work" ]]; then
-    stack_build
-    # TODO: Maybe wanna have an option to rebuild?
-fi
+#if [[ ! -d "$base/../../.stack-work" ]]; then
+#    stack_build
+#    # TODO: Maybe wanna have an option to rebuild?
+#fi
 
 # Define the default amount of nodes to run
 DEFAULT_NODES_N=4
@@ -56,7 +56,7 @@ if [[ $config_dir == "" ]]; then
   echo $(pwd)
   gen_kademlia_topology $n
 fi
-
+run_dir=$config_dir
 
 # Stats are not mandatory either
 stats=$4
@@ -136,7 +136,7 @@ while [[ $i -lt $panesCnt ]]; do
       if [[ $WALLET_CONFIG != "" ]]; then
           conf_file=$WALLET_CONFIG
       fi
-      wallet_args=" --tlscert $base/../tls-files/server.crt --tlskey $base/../tls-files/server.key --tlsca $base/../tls-files/ca.crt $wallet_flush" # --wallet-rebuild-db'
+      wallet_args=" --tlscert $config_dir/tls-files/server.crt --tlskey $config_dir/tls-files/server.key --tlsca $config_dir/tls-files/ca.crt $wallet_flush" # --wallet-rebuild-db'
       wallet_args="$WALLET_EXTRA_ARGS $wallet_args --wallet-address 127.0.0.1:8090"
       exec_name="$WALLET_EXE_NAME"
       if [[ $WALLET_DEBUG != "" ]]; then
@@ -144,13 +144,14 @@ while [[ $i -lt $panesCnt ]]; do
       fi
   fi
   if [[ $i -lt $n ]]; then
-    node_args="$(node_cmd $i "$stats" "$wallet_args" "$system_start" "$config_dir" "$conf_file")"
-    node_=$(find_binary $exec_name)
+    node_args="$(node_cmd $i "$wallet_args" "$system_start" "$config_dir" "$conf_file" "$run_dir" "$run_dir/logs")"
+    node_=/nix/store/cyjq242avbpgap9cqvi07aazzsfamnmp-cardano-sl-node-1.1.1/bin/cardano-node-simple
     if [[ $WALLET_TEST != "" ]] && [[ $i == $((n-1)) ]]; then
         updater_file="$config_dir/updater$i.sh"
-        launcher_=$(find_binary cardano-launcher)
+        launcher_=/nix/store/p7rbbdycckq1p9h7lfc9x3g4b2zrrd0m-cardano-sl-tools-1.1.1/bin/cardano-launcher
+        node_=/nix/store/jvkznd5vqzmy8v4g3qn6raaa63vj9p3p-cardano-sl-wallet-new-1.1.1/bin/cardano-node
 
-        ensure_run
+        ensure_run $run_dir
 
         full_node_args="$node_args $reb $no_ntp $keys_args $rts_opts"
 

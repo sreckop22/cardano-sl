@@ -1,7 +1,7 @@
 { localLib ? import ./../../../lib.nix
 , stateDir ? localLib.maybeEnv "CARDANO_STATE_DIR" "./state-demo"
 , config ? {}
-, runWallet ? false
+, runWallet ? true
 , runExplorer ? false
 , stats ? true
 , numCoreNodes ? 4
@@ -16,9 +16,20 @@ with localLib;
 
 let
   executables =  {
-    wallet = "${iohkPkgs.cardano-sl-wallet-new}/bin/cardano-node";
+    wallet = iohkPkgs.connectScripts.demoWallet.override {
+      walletListen = "127.0.0.1:8090";
+      ekgListen = "127.0.0.1:8006";
+      stateDir = stateDir;
+      topologyFile = pkgs.writeText "demo-wallet-topology" ''
+        wallet:
+          relays: [[{ addr: 127.0.0.1 }]]
+          valency: 1
+          fallbacks: 7
+
+      '';
+    };
     corenode = "${iohkPkgs.cardano-sl-node-static}/bin/cardano-node-simple";
-    launcher = "${iohkPkgs.cardano-sl-launcher}/bin/cardano-launcher";
+    launcher = "${iohkPkgs.cardano-sl-tools}/bin/cardano-launcher";
     explorer = "${iohkPkgs.cardano-sl-explorer-static}/bin/cardano-explorer";
   };
   ifWallet = localLib.optionalString (runWallet);
@@ -63,24 +74,21 @@ in pkgs.writeScript "demo-cluster" ''
 
   echo "Generating Topology"
   mkdir -p ${stateDir}
-  gen_kademlia_topology ${builtins.toString (numCoreNodes + 1)} ${stateDir}
+  gen_kademlia_topology ${builtins.toString numCoreNodes} ${stateDir}
 
   trap "stop_cardano" INT TERM
   echo "Launching a demo cluster..."
-  for i in {0..${builtins.toString numCoreNodes}}
+  for i in {0..${builtins.toString (numCoreNodes - 1)}}
   do
     node_args="$(node_cmd $i "" "$system_start" "${stateDir}" "" "${stateDir}/logs" "${stateDir}") --configuration-file ${configFiles}/configuration.yaml"
     echo Launching core node $i with args: $node_args
-    ${executables.corenode} $node_args &
+    ${executables.corenode} $node_args &> /dev/null &
     core_pid[$i]=$!
 
   done
   ${ifWallet ''
-      i=$(${builtins.toString numCoreNodes}+1)
-      wallet_args="--new-wallet --tlscert ${stateDir}/tls-files/server.crt --tlskey ${stateDir}/tls-files/server.key --tlsca ${stateDir}/tls-files/ca.crt --wallet-address 127.0.0.1:8090 --wallet-db-path ${stateDir}/wallet-db"
-    node_args="$(node_cmd $i "$wallet_args" "$system_start" "${stateDir}" "" "${stateDir}/logs" "${stateDir}") --configuration-file ${configFiles}/configuration.yaml"
-    echo Launching wallet node with args: $node_args
-    ${executables.launcher} $node_args &
+    echo Launching wallet node:
+    ${executables.wallet} "" --runtime-args "--system-start $system_start" &
     wallet_pid=$!
   ''}
   sleep infinity
